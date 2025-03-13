@@ -2,14 +2,18 @@ package com.example.oblig_restaurant;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class SceneHandler extends Application {
     final double WIDTH = Screen.getPrimary().getBounds().getWidth()*0.70;
     final double HEIGHT = Screen.getPrimary().getBounds().getHeight()*0.70;
+    private int customerCount = 0;
+    private int cookCount = 0;
+    private int orderCount = 0;
     BorderPane root;
     VBox leftVBucks;
     VBox middleVBucks;
@@ -18,7 +22,9 @@ public class SceneHandler extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         initializeGrid();
-
+        Button button = new Button("tester");
+        button.setOnAction(e -> testo());
+        leftVBucks.getChildren().add(button);
         System.out.println("This ran");
         Scene scene = new Scene(root, WIDTH, HEIGHT);
         stage.setTitle("Restaurant Simulation Started");
@@ -58,5 +64,25 @@ public class SceneHandler extends Application {
         grid.setPrefSize(WIDTH, HEIGHT);
 
         root.setCenter(grid);
+    }
+    private void testo() {
+        Label label = new Label("This is a test");
+        leftVBucks.getChildren().add(label);
+    }
+    private void updateGrids(){
+        updateCustomers();
+        updateOrders();
+        updateCooks();
+    }
+
+    private void updateCooks() {
+    }
+
+    private void updateOrders() {
+    }
+
+    private void updateCustomers() {
+        if (customerCount == leftVBucks.getChildren().size()) return;
+
     }
 }
