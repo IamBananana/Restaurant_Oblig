@@ -58,7 +58,7 @@ public class Customer {
         if (variance < 0) { throw new IllegalArgumentException("variance cannot be negative"); }
         //Random number between 0 and VARIANCE
         angryTime = LocalTime.now().plusSeconds(variance);
-        long exitTime = Duration.between(arrivalTime ,angryTime).toMinutes();
+        exitTime = Duration.between(arrivalTime ,angryTime).toMinutes();
     }
 
     public void setStatus(Status status) {
@@ -97,12 +97,15 @@ public class Customer {
         else if(timeLeft%exitTime < HAPPY_THRESH) setStatus(Status.NORMAL);
     }
 
+    /**
+     *
+     * @return Returns how long it is left before the customer gets angry/leaves in precentages (int)
+     */
     public int checkProgress() {
-        //IMPLEMENT
         //Return precentage of total progress since the order was made.
 
-
-        return 0;
+        long timeLeft = Duration.between(arrivalTime, LocalTime.now()).toMinutes();
+        return (int) ((timeLeft/exitTime)/100);
     }
 
     public String toString(){
