@@ -7,9 +7,10 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import java.util.List;
 
 public class HelloApplication extends Application {
-    // Shared order queue with a bounded capacity
+    // Delt ordrekø med begrenset kapasitet
     private final OrderQueue orderQueue = new OrderQueue(10);
 
     @Override
@@ -43,20 +44,27 @@ public class HelloApplication extends Application {
     }
 
     private void startSimulation() {
-        // Opprett kokker med spesialisering
-        Chef chefSushi = new Chef("Chef Sushi", Order.Meal.SUSHI, orderQueue.getQueue());
-        Chef chefBurger = new Chef("Chef Burger", Order.Meal.BURGER, orderQueue.getQueue());
-        Chef chefPizza = new Chef("Chef Pizza", Order.Meal.PIZZA, orderQueue.getQueue());
+        // Opprett kokker med spesialisering (bruker nå den nye Chef-versjonen)
+        Chef chefSushi = new Chef("Chef Sushi", Order.Meal.SUSHI, null);
+        Chef chefBurger = new Chef("Chef Burger", Order.Meal.BURGER, null);
+        Chef chefPizza = new Chef("Chef Pizza", Order.Meal.PIZZA, null);
 
         // Start kokketrådene
         new Thread(chefSushi).start();
         new Thread(chefBurger).start();
         new Thread(chefPizza).start();
 
+        // Opprett en liste med kokker
+        List<Chef> chefList = List.of(chefSushi, chefBurger, chefPizza);
+
+        // Opprett og start RestaurantManager for å tildele ordrer til kokkene
+        RestaurantManager manager = new RestaurantManager(orderQueue.getQueue(), chefList);
+        new Thread(manager).start();
+
         // Opprett og start kundetråder (minst 5 samtidig)
         for (int i = 0; i < 5; i++) {
             Customer customer = new Customer("Customer " + (i + 1));
-            // For demonstrasjon, bytt mellom forskjellige måltider
+            // For demonstrasjon: bytt mellom ulike måltider
             Order.Meal meal = Order.Meal.values()[i % Order.Meal.values().length];
             Order order = new Order(meal, customer);
             try {
@@ -66,7 +74,7 @@ public class HelloApplication extends Application {
             }
             new Thread(customer).start();
 
-            // Simuler tilfeldig ankomst ved å forsinke opprettelsen av nye kunder
+            // Simuler tilfeldig ankomst med forsinkelse
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
