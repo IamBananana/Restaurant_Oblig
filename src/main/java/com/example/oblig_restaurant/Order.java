@@ -1,11 +1,9 @@
 package com.example.oblig_restaurant;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.chrono.ChronoLocalDateTime;
+import java.time.Duration;
 
-public class Order{
+public class Order {
     private Meal meal;
     private int preparationTime; // in seconds
     private LocalTime orderTime;
@@ -15,7 +13,7 @@ public class Order{
     private Customer customer;
 
     public enum Meal {
-        SUSHI(600), BURGER(660), PIZZA(720);
+        SUSHI(6), BURGER(10), PIZZA(12);
 
         private int baseTime;
         Meal(int baseTime) {
@@ -30,7 +28,9 @@ public class Order{
     }
 
     public Order(Meal meal, Customer customer) {
-        if (meal == null) throw new IllegalArgumentException("meal is null");
+        if (meal == null || customer == null) {
+            throw new IllegalArgumentException("Meal and customer cannot be null");
+        }
         this.meal = meal;
         this.customer = customer;
         this.orderTime = LocalTime.now();
@@ -49,8 +49,12 @@ public class Order{
     }
 
     public void completeOrder() {
-        if (!isComplete()) throw new IllegalStateException("Order is in progress");
+        if (!isComplete()) {
+            throw new IllegalStateException("Order is still in progress");
+        }
         this.status = StatusOrder.COMPLETED;
+        System.out.println("Order completed: " + meal + " for " + customer.getName());
+        // Optionally, notify the customer (e.g., update UI or set a flag)
     }
 
     public Customer getCustomer() {
@@ -60,26 +64,33 @@ public class Order{
     public Meal getMeal() {
         return meal;
     }
+
     public int getPreparationTime() {
         return preparationTime;
     }
+
     public LocalTime getOrderTime() {
         return orderTime;
     }
+
     public LocalTime getStartTime() {
         return startTime;
     }
+
     public LocalTime getCompletionTime() {
         return completionTime;
     }
+
     public StatusOrder getStatus() {
         return status;
     }
+
     @Override
     public String toString() {
         return "Order: " +
-                "meal = " + meal +
-                ", preparationTime=" + preparationTime +
-                ", status=" + status;
+                "Meal=" + meal +
+                ", prepTime=" + preparationTime +
+                " sec, status=" + status +
+                ", Customer=" + customer.getName();
     }
 }

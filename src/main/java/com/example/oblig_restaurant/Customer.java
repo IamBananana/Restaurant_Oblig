@@ -6,49 +6,57 @@ import java.time.LocalTime;
 public class Customer implements Runnable {
     private String name;
     private LocalTime arrivalTime;
-    private LocalTime angryTime;
-    private long exitTime;
+    private LocalTime maxWaitTime; // The time by which the customer must have been served.
     private Status status;
 
-    //In precentages
-    private final int HAPPY_THRESH = 80;
-    //private final int NORMAL_THRESH = ;
-    private final int ANGRY_THRESH = 30;
-    private final int DEFAULT_VARIANCE = 10;
+    // Thresholds in percentages
+    private final int HAPPY_THRESH = 50;   // 0-50% waiting time: Happy
+    private final int NORMAL_THRESH = 80;  // 50-80% waiting time: Normal
+    private final int ANGRY_THRESH = 100;  // 100% waiting time: Angry (leaves)
 
-    public enum Status{
+    // Maximum waiting time in seconds (this can be parameterized)
+    private final int MAX_WAIT_SECONDS = 120;
+
+    public enum Status {
         HAPPY,
         NORMAL,
-        ANGRY
+        ANGRY,
+        LEFT  // if the customer leaves after waiting too long
     }
 
-    //The arrival time is when the customer is created
-    Customer(String name) {
+    // The arrival time is when the customer is created
+    public Customer(String name) {
         setName(name);
         setArrivalTime(LocalTime.now());
-        setAngryTime(DEFAULT_VARIANCE);
+        setMaxWaitTime(MAX_WAIT_SECONDS);
         setStatus(Status.HAPPY);
     }
 
     public void setName(String name) {
-        if (name == null || name.isBlank()) { throw new IllegalArgumentException("Name cannot be blank"); }
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be blank");
+        }
         this.name = name;
     }
 
     public void setArrivalTime(LocalTime arrivalTime) {
-        if (arrivalTime == null) { throw new IllegalArgumentException("ArrivalTime cannot be null"); }
+        if (arrivalTime == null) {
+            throw new IllegalArgumentException("ArrivalTime cannot be null");
+        }
         this.arrivalTime = arrivalTime;
     }
 
-    public void setAngryTime(int variance) {
-        if (variance < 0) { throw new IllegalArgumentException("variance cannot be negative"); }
-        //Random number between 0 and VARIANCE
-        angryTime = LocalTime.now().plusSeconds(variance);
-        exitTime = Duration.between(arrivalTime ,angryTime).toMinutes();
+    public void setMaxWaitTime(int seconds) {
+        if (seconds <= 0) {
+            throw new IllegalArgumentException("Max wait time must be positive");
+        }
+        this.maxWaitTime = arrivalTime.plusSeconds(seconds);
     }
 
     public void setStatus(Status status) {
-        if (status == null) { throw new IllegalArgumentException("Status cannot be null"); }
+        if (status == null) {
+            throw new IllegalArgumentException("Status cannot be null");
+        }
         this.status = status;
     }
 
@@ -60,41 +68,48 @@ public class Customer implements Runnable {
         return arrivalTime;
     }
 
-    public LocalTime getAngryTime() {
-        return angryTime;
-    }
-
     public Status getStatus() {
         return status;
     }
 
-    public void updateStatus() {
-        long timeLeft = Duration.between(arrivalTime, LocalTime.now()).toMinutes();
-
-
-        if( ( (timeLeft/exitTime)/100) < ANGRY_THRESH) setStatus(Status.ANGRY);
-        else if( ( (timeLeft/exitTime)/100) < HAPPY_THRESH) setStatus(Status.NORMAL);
-    }
-
     /**
-     *
-     * @return Returns how long it is left before the customer gets angry/leaves in precentages (int)
+     * Returns the percentage of the maximum wait time that has elapsed.
      */
     public int checkProgress() {
-        //Return precentage of total progress since the order was made.
-
-        long timeLeft = Duration.between(arrivalTime, LocalTime.now()).toMinutes();
-        return (int) ((timeLeft/exitTime)/100);
+        Duration waited = Duration.between(arrivalTime, LocalTime.now());
+        Duration maxWait = Duration.between(arrivalTime, maxWaitTime);
+        return (int)(waited.toMillis() * 100 / maxWait.toMillis());
     }
 
-    public String toString(){
-        return "Not implemented yet";
+    public void updateStatus() {
+        int progress = checkProgress();
+        if(progress >= ANGRY_THRESH) {
+            setStatus(Status.ANGRY);
+            System.out.println(name + " got angry and left!");
+            // Here you can trigger additional cleanup or removal from UI simulation
+        } else if(progress >= NORMAL_THRESH) {
+            setStatus(Status.NORMAL);
+        } else {
+            setStatus(Status.HAPPY);
+        }
     }
 
     @Override
     public void run() {
-        while(true){
-          updateStatus();
+        // Customer thread keeps checking status until they get angry (or order is served)
+        while(getStatus() != Status.ANGRY) {
+            updateStatus();
+            try {
+                Thread.sleep(1000); // Check every second
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
+    }
+
+    @Override
+    public String toString(){
+        return name + " (" + status + ", " + checkProgress() + "% waited)";
     }
 }
