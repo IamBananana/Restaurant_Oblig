@@ -3,10 +3,8 @@ package com.example.oblig_restaurant;
 import java.time.Duration;
 import java.time.LocalTime;
 
-public class Customer {
-    private int id;
+public class Customer implements Runnable {
     private String name;
-    private Order order;
     private LocalTime arrivalTime;
     private LocalTime angryTime;
     private long exitTime;
@@ -25,28 +23,16 @@ public class Customer {
     }
 
     //The arrival time is when the customer is created
-    Customer(int id, String name, Order order) {
-        setId(id);
+    Customer(String name) {
         setName(name);
-        setOrder(order);
         setArrivalTime(LocalTime.now());
         setAngryTime(DEFAULT_VARIANCE);
         setStatus(Status.HAPPY);
     }
 
-    public void setId(int id) {
-        if (id < 0) { throw new IllegalArgumentException("id cannot be negative"); }
-        this.id = id;
-    }
-
     public void setName(String name) {
         if (name == null || name.isBlank()) { throw new IllegalArgumentException("Name cannot be blank"); }
         this.name = name;
-    }
-
-    public void setOrder(Order order) {
-        if (order == null) { throw new IllegalArgumentException("Order cannot be null"); }
-        this.order = order;
     }
 
     public void setArrivalTime(LocalTime arrivalTime) {
@@ -66,16 +52,8 @@ public class Customer {
         this.status = status;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public Order getOrder() {
-        return order;
     }
 
     public LocalTime getArrivalTime() {
@@ -93,8 +71,9 @@ public class Customer {
     public void updateStatus() {
         long timeLeft = Duration.between(arrivalTime, LocalTime.now()).toMinutes();
 
-        if(timeLeft%exitTime < ANGRY_THRESH) setStatus(Status.ANGRY);
-        else if(timeLeft%exitTime < HAPPY_THRESH) setStatus(Status.NORMAL);
+
+        if( ( (timeLeft/exitTime)/100) < ANGRY_THRESH) setStatus(Status.ANGRY);
+        else if( ( (timeLeft/exitTime)/100) < HAPPY_THRESH) setStatus(Status.NORMAL);
     }
 
     /**
@@ -110,5 +89,12 @@ public class Customer {
 
     public String toString(){
         return "Not implemented yet";
+    }
+
+    @Override
+    public void run() {
+        while(true){
+          updateStatus();
+        }
     }
 }

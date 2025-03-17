@@ -2,11 +2,11 @@ package com.example.oblig_restaurant;
 
 import java.util.concurrent.BlockingQueue;
 
-public class Chef {
+public class Chef implements Runnable {
     private final Order.Meal specializedMeal;
     private final BlockingQueue<Order> orderQueue;
 
-    public Chef(Order.Meal specializedMeal, BlockingQueue<Order> orderQueue) {
+    public Chef(Order.Meal specializedMeal, BlockingQueue<Order> orderQueue)  {
         if (specializedMeal == null || orderQueue == null) {
             throw new IllegalArgumentException("Specialized meal and order queue cannot be null");
         }
@@ -14,7 +14,8 @@ public class Chef {
         this.orderQueue = orderQueue;
     }
 
-    public void processOrders() {
+    @Override
+    public void run() {
         while (true) {
             try {
                 // Take an order from the priority queue
@@ -44,7 +45,7 @@ public class Chef {
             Thread.currentThread().interrupt();
             System.out.println("Preparation was interrupted.");
         }
-        order.setStatus(Order.StatusOrder.COMPLETED);
+        order.completeOrder();
         System.out.println("Order completed: " + order.getMeal() + " for " + order.getCustomer().getName());
     }
 }

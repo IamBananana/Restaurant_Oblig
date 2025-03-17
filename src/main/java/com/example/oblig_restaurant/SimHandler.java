@@ -9,15 +9,23 @@ public class SimHandler implements Runnable {
 
     //all the objects
     public SimHandler() {
-        PriorityBlockingQueue<Order> queue = new PriorityBlockingQueue<Order>(10);
-        Thread chefBurger = new Thread(this);
-        Thread chefPizza = new Thread(this);
-        Thread chefSushi = new Thread(this);
-    }
-    @Override
-    public void run() {
-        while (gameOn) {
+        OrderQueue orderQueue = new OrderQueue(10); // Max 5 orders in the queue
 
-        }
+        // Create chefs
+        Chef chef1 = new Chef(Order.Meal.BURGER., orderQueue);
+        Chef chef2 = new Chef(Order.Meal.SUSHI, "MealType2", orderQueue);
+
+        // Create customers (some VIP, some non-VIP)
+        Customer customer1 = new Customer("Alice", 10, orderQueue, false);
+        Customer customer2 = new Customer("Bob", 15, orderQueue, true); // VIP
+        Customer customer3 = new Customer("Charlie", 20, orderQueue, false);
+
+        // Start threads
+
     }
+    //Methods here to manage queue
+
+    //Process orders
+
+    //Process cooking
 }

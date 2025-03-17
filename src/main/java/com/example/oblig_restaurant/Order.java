@@ -5,13 +5,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.chrono.ChronoLocalDateTime;
 
-public class Order {
+public class Order{
     private Meal meal;
     private int preparationTime; // in seconds
     private LocalTime orderTime;
     private LocalTime startTime;
     private LocalTime completionTime;
     private StatusOrder status;
+    private Customer customer;
 
     public enum Meal {
         SUSHI(600), BURGER(660), PIZZA(720);
@@ -28,9 +29,10 @@ public class Order {
         QUEUED, IN_PROGRESS, COMPLETED
     }
 
-    public Order(Meal meal) {
+    public Order(Meal meal, Customer customer) {
         if (meal == null) throw new IllegalArgumentException("meal is null");
         this.meal = meal;
+        this.customer = customer;
         this.orderTime = LocalTime.now();
         this.status = StatusOrder.QUEUED;
         this.preparationTime = meal.getBaseTime();
@@ -49,6 +51,10 @@ public class Order {
     public void completeOrder() {
         if (!isComplete()) throw new IllegalStateException("Order is in progress");
         this.status = StatusOrder.COMPLETED;
+    }
+
+    public Customer getCustomer() {
+        return customer;
     }
 
     public Meal getMeal() {
