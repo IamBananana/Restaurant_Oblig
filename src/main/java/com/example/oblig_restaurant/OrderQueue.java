@@ -7,12 +7,11 @@ public class OrderQueue {
     private final BlockingQueue<Order> orders;
 
     public OrderQueue(int maxSize) {
-        // ArrayBlockingQueue enforces a maximum number of orders in the queue.
         this.orders = new ArrayBlockingQueue<>(maxSize);
     }
 
     public void addOrder(Order order) throws InterruptedException {
-        orders.put(order); // Blocks if the queue is full
+        orders.put(order);
         System.out.println("Order added: " + order);
     }
 

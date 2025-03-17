@@ -6,25 +6,24 @@ import java.time.LocalTime;
 public class Customer implements Runnable {
     private String name;
     private LocalTime arrivalTime;
-    private LocalTime maxWaitTime; // The time by which the customer must have been served.
+    private LocalTime maxWaitTime;
     private Status status;
 
     // Thresholds in percentages
-    private final int HAPPY_THRESH = 50;   // 0-50% waiting time: Happy
-    private final int NORMAL_THRESH = 80;  // 50-80% waiting time: Normal
-    private final int ANGRY_THRESH = 100;  // 100% waiting time: Angry (leaves)
+    private final int HAPPY_THRESH = 50;
+    private final int NORMAL_THRESH = 80;
+    private final int ANGRY_THRESH = 100;
 
-    // Maximum waiting time in seconds (this can be parameterized)
+    // Maximum waiting time in seconds
     private final int MAX_WAIT_SECONDS = 120;
 
     public enum Status {
         HAPPY,
         NORMAL,
         ANGRY,
-        LEFT  // if the customer leaves after waiting too long
+        LEFT
     }
 
-    // The arrival time is when the customer is created
     public Customer(String name) {
         setName(name);
         setArrivalTime(LocalTime.now());
@@ -72,9 +71,6 @@ public class Customer implements Runnable {
         return status;
     }
 
-    /**
-     * Returns the percentage of the maximum wait time that has elapsed.
-     */
     public int checkProgress() {
         Duration waited = Duration.between(arrivalTime, LocalTime.now());
         Duration maxWait = Duration.between(arrivalTime, maxWaitTime);
@@ -86,7 +82,6 @@ public class Customer implements Runnable {
         if(progress >= ANGRY_THRESH) {
             setStatus(Status.ANGRY);
             System.out.println(name + " got angry and left!");
-            // Here you can trigger additional cleanup or removal from UI simulation
         } else if(progress >= NORMAL_THRESH) {
             setStatus(Status.NORMAL);
         } else {
@@ -96,11 +91,10 @@ public class Customer implements Runnable {
 
     @Override
     public void run() {
-        // Customer thread keeps checking status until they get angry (or order is served)
         while(getStatus() != Status.ANGRY) {
             updateStatus();
             try {
-                Thread.sleep(1000); // Check every second
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

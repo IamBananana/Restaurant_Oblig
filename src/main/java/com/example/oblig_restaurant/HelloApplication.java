@@ -49,6 +49,13 @@ public class HelloApplication extends Application {
         Chef chefBurger = new Chef("Chef Burger", Order.Meal.BURGER, null);
         Chef chefPizza = new Chef("Chef Pizza", Order.Meal.PIZZA, null);
 
+        // Legg til meldinger i SimulationData for kokker (oppdater via Platform.runLater)
+        Platform.runLater(() -> {
+            SimulationData.chefData.add("Chef Sushi created");
+            SimulationData.chefData.add("Chef Burger created");
+            SimulationData.chefData.add("Chef Pizza created");
+        });
+
         // Start kokketrådene
         new Thread(chefSushi).start();
         new Thread(chefBurger).start();
@@ -64,11 +71,13 @@ public class HelloApplication extends Application {
         // Opprett og start kundetråder (minst 5 samtidig)
         for (int i = 0; i < 5; i++) {
             Customer customer = new Customer("Customer " + (i + 1));
+            Platform.runLater(() -> SimulationData.customerData.add("Created " + customer.toString()));
             // For demonstrasjon: bytt mellom ulike måltider
             Order.Meal meal = Order.Meal.values()[i % Order.Meal.values().length];
             Order order = new Order(meal, customer);
             try {
                 orderQueue.addOrder(order);
+                Platform.runLater(() -> SimulationData.orderData.add("Order added: " + order.toString()));
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }

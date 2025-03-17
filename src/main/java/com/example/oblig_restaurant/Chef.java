@@ -1,5 +1,6 @@
 package com.example.oblig_restaurant;
 
+import javafx.application.Platform;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -41,31 +42,33 @@ public class Chef implements Runnable {
     public void run() {
         while (true) {
             try {
-                // Vent på at en ordre skal tildeles
                 Order order = personalQueue.take();
                 prepareOrder(order);
                 Thread.sleep(delayBetweenOrders * 1000L);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.out.println("Chef " + name + " ble avbrutt.");
+                System.out.println("Chef " + name + " interrupted.");
                 break;
             }
         }
     }
 
     private void prepareOrder(Order order) {
-        String message = "Chef " + name + " (spesialisert på " + specializedMeal + ") er i gang med "
-                + order.getMeal() + " for " + order.getCustomer().getName();
+        String message = "Chef " + name + " (specialized in " + specializedMeal + ") is preparing " +
+                order.getMeal() + " for " + order.getCustomer().getName();
         System.out.println(message);
+        // Oppdater SimulationData på FX-tråden
+        Platform.runLater(() -> SimulationData.chefData.add(message));
         order.startMakingOrder();
         try {
             Thread.sleep(order.getPreparationTime() * 1000L);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println("Tilberedningen av " + order.getMeal() + " av " + name + " ble avbrutt.");
+            System.out.println("Preparation of " + order.getMeal() + " by " + name + " interrupted.");
         }
         order.completeOrder();
         String completeMessage = "Order completed: " + order.getMeal() + " for " + order.getCustomer().getName();
         System.out.println(completeMessage);
+        Platform.runLater(() -> SimulationData.chefData.add(completeMessage));
     }
 }

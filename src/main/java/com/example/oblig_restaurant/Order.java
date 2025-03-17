@@ -54,7 +54,6 @@ public class Order {
         }
         this.status = StatusOrder.COMPLETED;
         System.out.println("Order completed: " + meal + " for " + customer.getName());
-        // Optionally, notify the customer (e.g., update UI or set a flag)
     }
 
     public Customer getCustomer() {
