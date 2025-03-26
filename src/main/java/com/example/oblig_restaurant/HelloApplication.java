@@ -10,8 +10,9 @@ import javafx.stage.Stage;
 import java.util.List;
 
 public class HelloApplication extends Application {
-    // Delt ordrekø med begrenset kapasitet
-    private final OrderQueue orderQueue = new OrderQueue(10);
+    // Endret: Ordrekø med maks 5 bestillinger om gangen
+    private final OrderQueue orderQueue = new OrderQueue(5);
+    private int customerCount = 0;
 
     @Override
     public void start(Stage stage) {
@@ -23,7 +24,7 @@ public class HelloApplication extends Application {
             // Start simuleringslogikken i en egen tråd
             new Thread(this::startSimulation).start();
 
-            // Åpne et nytt vindu (Stage) for SceneHandler fra den kjørende JavaFX-applikasjonen
+            // Åpne et nytt vindu for det forbedrede brukergrensesnittet
             Platform.runLater(() -> {
                 SceneHandler sceneHandler = new SceneHandler();
                 try {
@@ -44,12 +45,11 @@ public class HelloApplication extends Application {
     }
 
     private void startSimulation() {
-        // Opprett kokker med spesialisering (bruker nå den nye Chef-versjonen)
+        // Opprett kokker med spesialisering
         Chef chefSushi = new Chef("Chef Sushi", Order.Meal.SUSHI, null);
         Chef chefBurger = new Chef("Chef Burger", Order.Meal.BURGER, null);
         Chef chefPizza = new Chef("Chef Pizza", Order.Meal.PIZZA, null);
 
-        // Legg til meldinger i SimulationData for kokker (oppdater via Platform.runLater)
         Platform.runLater(() -> {
             SimulationData.chefData.add("Chef Sushi created");
             SimulationData.chefData.add("Chef Burger created");
@@ -64,30 +64,34 @@ public class HelloApplication extends Application {
         // Opprett en liste med kokker
         List<Chef> chefList = List.of(chefSushi, chefBurger, chefPizza);
 
-        // Opprett og start RestaurantManager for å tildele ordrer til kokkene
+        // Start RestaurantManager for å tildele ordrer til kokkene
         RestaurantManager manager = new RestaurantManager(orderQueue.getQueue(), chefList);
         new Thread(manager).start();
 
-        // Opprett og start kundetråder (minst 5 samtidig)
-        for (int i = 0; i < 5; i++) {
-            Customer customer = new Customer("Customer " + (i + 1));
+        // Kontinuerlig generering av kunder og ordre
+        while (!Thread.currentThread().isInterrupted()) {
+            customerCount++;
+            Customer customer = new Customer("Customer " + customerCount);
             Platform.runLater(() -> SimulationData.customerData.add("Created " + customer.toString()));
-            // For demonstrasjon: bytt mellom ulike måltider
-            Order.Meal meal = Order.Meal.values()[i % Order.Meal.values().length];
+            // Velg måltid basert på rundgang (bruk modulus)
+            Order.Meal meal = Order.Meal.values()[customerCount % Order.Meal.values().length];
             Order order = new Order(meal, customer);
             try {
+                // Dersom køen er full, venter addOrder() (blokkerende kall)
                 orderQueue.addOrder(order);
                 Platform.runLater(() -> SimulationData.orderData.add("Order added: " + order.toString()));
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
+                break;
             }
             new Thread(customer).start();
 
-            // Simuler tilfeldig ankomst med forsinkelse
+            // Simuler ankomstforsinkelse
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
+                break;
             }
         }
     }

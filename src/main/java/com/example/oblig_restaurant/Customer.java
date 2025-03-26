@@ -20,6 +20,7 @@ public class Customer implements Runnable {
     public enum Status {
         HAPPY,
         NORMAL,
+        SERVED,  // Ny status for mottatt bestilling
         ANGRY,
         LEFT
     }
@@ -78,6 +79,10 @@ public class Customer implements Runnable {
     }
 
     public void updateStatus() {
+        // Dersom bestillingen allerede er mottatt, stopp oppdateringen.
+        if(getStatus() == Status.SERVED) {
+            return;
+        }
         int progress = checkProgress();
         if(progress >= ANGRY_THRESH) {
             setStatus(Status.ANGRY);
@@ -89,9 +94,15 @@ public class Customer implements Runnable {
         }
     }
 
+    // Metode for å motta bestillingen
+    public void receiveOrder() {
+        setStatus(Status.SERVED);
+        System.out.println(name + " has received the order and is leaving happily!");
+    }
+
     @Override
     public void run() {
-        while(getStatus() != Status.ANGRY) {
+        while(getStatus() != Status.ANGRY && getStatus() != Status.SERVED) {
             updateStatus();
             try {
                 Thread.sleep(1000);

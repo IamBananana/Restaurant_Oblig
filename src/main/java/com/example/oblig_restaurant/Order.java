@@ -1,7 +1,6 @@
 package com.example.oblig_restaurant;
 
 import java.time.LocalTime;
-import java.time.Duration;
 
 public class Order {
     private Meal meal;

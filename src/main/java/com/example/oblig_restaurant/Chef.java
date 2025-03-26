@@ -67,6 +67,8 @@ public class Chef implements Runnable {
             System.out.println("Preparation of " + order.getMeal() + " by " + name + " interrupted.");
         }
         order.completeOrder();
+        // Varsle kunden om at bestillingen er klar
+        order.getCustomer().receiveOrder();
         String completeMessage = "Order completed: " + order.getMeal() + " for " + order.getCustomer().getName();
         System.out.println(completeMessage);
         Platform.runLater(() -> SimulationData.chefData.add(completeMessage));
