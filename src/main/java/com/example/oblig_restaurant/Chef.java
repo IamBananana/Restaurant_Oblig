@@ -10,7 +10,7 @@ public class Chef implements Runnable {
     // Personlig kø for å motta én ordre om gangen
     private final BlockingQueue<Order> personalQueue = new ArrayBlockingQueue<>(1);
     // Forsinkelse mellom ordrer (i sekunder)
-    private final int delayBetweenOrders = 5;
+    private final int delayBetweenOrders = 2;
 
     public Chef(String name, Order.Meal specializedMeal, BlockingQueue<Order> globalQueue) {
         if (name == null || specializedMeal == null) {

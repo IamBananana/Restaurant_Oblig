@@ -34,7 +34,7 @@ public class Order {
         this.customer = customer;
         this.orderTime = LocalTime.now();
         this.status = StatusOrder.QUEUED;
-        this.preparationTime = meal.getBaseTime() + (int)(Math.random() * 10);
+        this.preparationTime = meal.getBaseTime() + (int)(Math.random() * 5);
     }
 
     public void startMakingOrder() {
@@ -85,10 +85,8 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order: " +
-                "Meal=" + meal +
-                ", prepTime=" + preparationTime +
-                " sec, status=" + status +
+        return"Meal=" + meal +
+                ", prepTime=" + preparationTime + status +
                 ", Customer=" + customer.getName();
     }
 }

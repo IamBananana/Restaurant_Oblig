@@ -44,10 +44,10 @@ public class HelloApplication extends javafx.application.Application {
     }
 
     private void startSimulation() {
-        // Opprett kokker med spesialisering
-        Chef chefSushi = new Chef("Chef Sushi", Order.Meal.SUSHI, null);
-        Chef chefBurger = new Chef("Chef Burger", Order.Meal.BURGER, null);
-        Chef chefPizza = new Chef("Chef Pizza", Order.Meal.PIZZA, null);
+        // Opprett kokker med spesialisering og send med den globale køen
+        Chef chefSushi = new Chef("Chef Sushi", Order.Meal.SUSHI, orderQueue.getQueue());
+        Chef chefBurger = new Chef("Chef Burger", Order.Meal.BURGER, orderQueue.getQueue());
+        Chef chefPizza = new Chef("Chef Pizza", Order.Meal.PIZZA, orderQueue.getQueue());
 
         Platform.runLater(() -> {
             SimulationData.chefData.add("Chef Sushi created");
@@ -55,7 +55,6 @@ public class HelloApplication extends javafx.application.Application {
             SimulationData.chefData.add("Chef Pizza created");
         });
 
-        // Start kokketrådene
         new Thread(chefSushi).start();
         new Thread(chefBurger).start();
         new Thread(chefPizza).start();
@@ -67,16 +66,14 @@ public class HelloApplication extends javafx.application.Application {
         RestaurantManager manager = new RestaurantManager(orderQueue.getQueue(), chefList);
         new Thread(manager).start();
 
-        // Kontinuerlig generering av kunder og ordre
-        while (!Thread.currentThread().isInterrupted()) {
+        // Generering av kunder og ordre (kan ha variabel ankomsthastighet, se tidligere forslag)
+        while (true) {
             customerCount++;
             Customer customer = new Customer("Customer " + customerCount);
             Platform.runLater(() -> SimulationData.customerData.add("Created " + customer.toString()));
-            // Velg måltid basert på rundgang (bruk modulus)
             Order.Meal meal = Order.Meal.values()[customerCount % Order.Meal.values().length];
             Order order = new Order(meal, customer);
             try {
-                // Dersom køen er full, venter addOrder() (blokkerende kall)
                 orderQueue.addOrder(order);
                 Platform.runLater(() -> SimulationData.orderData.add("Order added: " + order.toString()));
             } catch (InterruptedException ex) {
@@ -85,9 +82,8 @@ public class HelloApplication extends javafx.application.Application {
             }
             new Thread(customer).start();
 
-            // Simuler ankomstforsinkelse
             try {
-                Thread.sleep(2000);
+                Thread.sleep((long)(Math.random() * 7000) + 1000);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 break;
