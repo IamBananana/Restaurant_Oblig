@@ -56,7 +56,7 @@ public class SceneHandler extends Application {
         chefListView.setPrefHeight(500);
         chefBox.getChildren().addAll(chefLabel, chefListView);
 
-        // Plasser seksjonene side om sin
+        // Plasser seksjonene side om side
         root.setLeft(customerBox);
         root.setCenter(orderBox);
         root.setRight(chefBox);

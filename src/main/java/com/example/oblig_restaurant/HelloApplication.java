@@ -87,7 +87,7 @@ public class HelloApplication extends javafx.application.Application {
 
             // Simuler ankomstforsinkelse
             try {
-                Thread.sleep((int)(Math.random() * 2000));
+                Thread.sleep(2000);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 break;
