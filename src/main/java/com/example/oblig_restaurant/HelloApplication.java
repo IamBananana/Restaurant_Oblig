@@ -94,6 +94,7 @@ public class HelloApplication extends Application {
                 break;
             }
         }
+        Platform.runLater(() -> SimulationData.customerData.remove(this.toString()));
     }
 
     public static void main(String[] args) {

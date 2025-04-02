@@ -15,7 +15,7 @@ public class Customer implements Runnable {
     private final int ANGRY_THRESH = 100;
 
     // Maximum waiting time in seconds
-    private final int MAX_WAIT_SECONDS = 120;
+    private final int MAX_WAIT_SECONDS = 20;
 
     public enum Status {
         HAPPY,

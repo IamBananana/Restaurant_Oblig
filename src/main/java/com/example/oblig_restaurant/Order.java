@@ -34,7 +34,7 @@ public class Order {
         this.customer = customer;
         this.orderTime = LocalTime.now();
         this.status = StatusOrder.QUEUED;
-        this.preparationTime = meal.getBaseTime();
+        this.preparationTime = meal.getBaseTime() + (int)(Math.random() * 10);
     }
 
     public void startMakingOrder() {
