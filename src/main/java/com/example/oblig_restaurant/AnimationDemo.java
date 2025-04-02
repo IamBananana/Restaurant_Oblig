@@ -21,7 +21,7 @@ public class AnimationDemo extends Application {
         stage.setScene(scene);
         stage.show();
 
-        // Timeline for å legge til en ny loggmelding hvert sekund (10 meldinger totalt)
+        // Timeline for Ã¥ legge til en ny loggmelding hvert sekund (10 meldinger totalt)
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             String newLog = "Ny loggmelding: " + System.currentTimeMillis();
             logListView.getItems().add(newLog);

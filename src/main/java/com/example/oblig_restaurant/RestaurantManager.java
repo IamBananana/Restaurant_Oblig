@@ -1,44 +1,46 @@
 package com.example.oblig_restaurant;
 
-import javafx.application.Platform;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class RestaurantManager implements Runnable {
     private final BlockingQueue<Order> orderQueue;
-    private final List<Chef> chefs;
+    private final List<Chef> chefList;
 
-    public RestaurantManager(BlockingQueue<Order> orderQueue, List<Chef> chefs) {
-        if (orderQueue == null || chefs == null || chefs.isEmpty()) {
-            throw new IllegalArgumentException("OrderQueue and chef list cannot be null or empty.");
-        }
+    public RestaurantManager(BlockingQueue<Order> orderQueue, List<Chef> chefList) {
         this.orderQueue = orderQueue;
-        this.chefs = chefs;
-    }
-
-    // Sjekker om det finnes en ledig kokk med riktig spesialisering for den aktuelle ordren.
-    private Chef findAvailableChef(Order.Meal meal) {
-        for (Chef chef : chefs) {
-            if (chef.getSpecializedMeal() == meal && chef.isAvailable()) {
-                return chef;
-            }
-        }
-        return null;
+        this.chefList = chefList;
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 Order order = orderQueue.take();
-                Chef availableChef = null;
-                while ((availableChef = findAvailableChef(order.getMeal())) == null) {
-                    Thread.sleep(500);
+                Chef selectedChef = null;
+                // Først, prøv å finne en kokk med riktig spesialisering
+                for (Chef chef : chefList) {
+                    if (chef.getSpecializedMeal() == order.getMeal() && chef.isAvailable()) {
+                        selectedChef = chef;
+                        break;
+                    }
                 }
-                availableChef.assignOrder(order);
-                String assignmentMsg = "Assigned order " + order + " to " + availableChef.getName();
-                System.out.println(assignmentMsg);
-                Platform.runLater(() -> SimulationData.orderData.add(assignmentMsg));
+                // Om ingen spesialisert kokk er tilgjengelig, bruk en hvilken som helst ledig kokk
+                if (selectedChef == null) {
+                    for (Chef chef : chefList) {
+                        if (chef.isAvailable()) {
+                            selectedChef = chef;
+                            break;
+                        }
+                    }
+                }
+                // Om ingen kokk er ledig, vent litt og legg ordren tilbake i køen
+                if (selectedChef == null) {
+                    Thread.sleep(1000);
+                    orderQueue.put(order);
+                    continue;
+                }
+                selectedChef.assignOrder(order);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

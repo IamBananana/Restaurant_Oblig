@@ -6,7 +6,7 @@ import java.util.concurrent.BlockingQueue;
 public class OrderQueue {
     private final BlockingQueue<Order> orders;
 
-    // Endret: maks antall bestillinger er nå 5
+    // Endret: maks antall bestillinger er nÃ¥ 5
     public OrderQueue(int maxSize) {
         this.orders = new ArrayBlockingQueue<>(maxSize);
     }

@@ -1,6 +1,5 @@
 package com.example.oblig_restaurant;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,7 +8,8 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import java.util.List;
 
-public class HelloApplication extends Application {
+
+public class HelloApplication extends javafx.application.Application {
     // Endret: Ordrekø med maks 5 bestillinger om gangen
     private final OrderQueue orderQueue = new OrderQueue(5);
     private int customerCount = 0;
@@ -94,7 +94,6 @@ public class HelloApplication extends Application {
                 break;
             }
         }
-        Platform.runLater(() -> SimulationData.customerData.remove(this.toString()));
     }
 
     public static void main(String[] args) {
