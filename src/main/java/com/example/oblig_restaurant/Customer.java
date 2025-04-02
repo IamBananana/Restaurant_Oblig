@@ -2,6 +2,7 @@ package com.example.oblig_restaurant;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import javafx.application.Platform;
 
 public class Customer implements Runnable {
     private String name;
@@ -9,18 +10,18 @@ public class Customer implements Runnable {
     private LocalTime maxWaitTime;
     private Status status;
 
-    // Thresholds in percentages
+    // Terskler i prosent
     private final int HAPPY_THRESH = 50;
     private final int NORMAL_THRESH = 80;
     private final int ANGRY_THRESH = 100;
 
-    // Maximum waiting time in seconds
+    // Maks ventetid i sekunder
     private final int MAX_WAIT_SECONDS = 20;
 
     public enum Status {
         HAPPY,
         NORMAL,
-        SERVED,  // Ny status for mottatt bestilling
+        SERVED,  // Bestillingen er mottatt
         ANGRY,
         LEFT
     }
@@ -79,8 +80,8 @@ public class Customer implements Runnable {
     }
 
     public void updateStatus() {
-        // Dersom bestillingen allerede er mottatt, stopp oppdateringen.
-        if(getStatus() == Status.SERVED) {
+        // Ikke oppdater hvis kunden allerede er servert eller har forlatt
+        if(getStatus() == Status.SERVED || getStatus() == Status.LEFT) {
             return;
         }
         int progress = checkProgress();
@@ -102,8 +103,14 @@ public class Customer implements Runnable {
 
     @Override
     public void run() {
+        // Oppdater kundens status hvert sekund inntil den er servert eller blir sint
         while(getStatus() != Status.ANGRY && getStatus() != Status.SERVED) {
             updateStatus();
+            Platform.runLater(() -> {
+                // Fjern gamle oppføringer og legg til oppdatert status
+                SimulationData.customerData.removeIf(s -> s.contains(name));
+                SimulationData.customerData.add(toString());
+            });
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -111,6 +118,11 @@ public class Customer implements Runnable {
                 break;
             }
         }
+        // Sluttoppdatering når kunden er ferdig (enten servert eller har forlatt)
+        Platform.runLater(() -> {
+            SimulationData.customerData.removeIf(s -> s.contains(name));
+            SimulationData.customerData.add(name + " (" + status + ") has left.");
+        });
     }
 
     @Override

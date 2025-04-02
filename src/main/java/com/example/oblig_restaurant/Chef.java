@@ -57,7 +57,6 @@ public class Chef implements Runnable {
         String message = "Chef " + name + " (specialized in " + specializedMeal + ") is preparing " +
                 order.getMeal() + " for " + order.getCustomer().getName();
         System.out.println(message);
-        // Oppdater SimulationData på FX-tråden
         Platform.runLater(() -> SimulationData.chefData.add(message));
         order.startMakingOrder();
         try {
@@ -65,10 +64,15 @@ public class Chef implements Runnable {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.out.println("Preparation of " + order.getMeal() + " by " + name + " interrupted.");
+            return;
         }
         order.completeOrder();
-        // Varsle kunden om at bestillingen er klar
-        order.getCustomer().receiveOrder();
+        // Sjekk om kunden fortsatt venter før bestillingen leveres
+        if(order.getCustomer().getStatus() != Customer.Status.ANGRY) {
+            order.getCustomer().receiveOrder();
+        } else {
+            System.out.println(order.getCustomer().getName() + " is no longer waiting.");
+        }
         String completeMessage = "Order completed: " + order.getMeal() + " for " + order.getCustomer().getName();
         System.out.println(completeMessage);
         Platform.runLater(() -> SimulationData.chefData.add(completeMessage));
