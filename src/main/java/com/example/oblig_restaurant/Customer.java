@@ -11,9 +11,9 @@ public class Customer implements Runnable {
     private Status status;
 
     // Terskler i prosent
-    private final int HAPPY_THRESH = 50;
-    private final int NORMAL_THRESH = 80;
-    private final int ANGRY_THRESH = 100;
+    private final int HAPPY_THRESH = 0;
+    private final int NORMAL_THRESH = 33;
+    private final int ANGRY_THRESH = 67;
 
     // Maks ventetid i sekunder
     private final int MAX_WAIT_SECONDS = 20;
